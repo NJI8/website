@@ -665,3 +665,22 @@ body.scrolled .nav-links a {
     transition: none;
   }
 }
+/* PHONE STYLES (max-width: 768px) */
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Fix Safari vh issues using CSS custom property */
+  .section.red {
+    min-height: calc(var(--vh, 1vh) * 100);
+    height: auto;
+  }
+  
+  .hero {
+    min-height: calc(var(--vh, 1vh) * 100);
+    height: auto;
+  }
+  
+  /* ... rest of your mobile styles ... */
+}
