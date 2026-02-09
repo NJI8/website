@@ -377,7 +377,13 @@ body.scrolled .nav-links a {
   body {
     overflow-x: hidden;
   }
-  
+
+  /* Fix Safari vh issues */
+  .section.red {
+    min-height: calc(var(--vh, 1vh) * 100);
+    height: auto;
+  }
+
   /* Logo mobile behavior */
   .logo {
     width: min(300px, 80vw);
@@ -630,6 +636,7 @@ body.scrolled .nav-links a {
   .section.red,
   .services-section {
     min-height: 100vh;
+    height: auto;
   }
   
   body.scrolled .nav-links {
