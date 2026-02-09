@@ -1,25 +1,15 @@
-// Fix for Safari vh issues - set section heights directly
-function fixMobileHeights() {
-    const viewportHeight = window.innerHeight;
-    // Set height for all sections that should be full height
-    const sections = document.querySelectorAll('.section.red, .services-section');
-    sections.forEach(section => {
-        section.style.minHeight = `${viewportHeight}px`;
-        section.style.height = `${viewportHeight}px`;
-    });
-
-    // Also fix hero section
-    const hero = document.querySelector('.hero');
-    if (hero) {
-        hero.style.minHeight = `${viewportHeight}px`;
-        hero.style.height = `${viewportHeight}px`;
-    }
+// Fix for Safari mobile viewport height
+function setViewportHeight() {
+    // Set a custom CSS variable for mobile Safari
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
 }
 
-// Run on load and resize
-fixMobileHeights();
-window.addEventListener('resize', fixMobileHeights);
+// Initialize
+setViewportHeight();
+window.addEventListener('resize', setViewportHeight);
 
+// Elements
 const whiteSection = document.querySelector(".white");
 const logo = document.querySelector(".logo");
 const hero = document.querySelector(".hero");
@@ -34,110 +24,123 @@ function isMobile() {
     return window.innerWidth <= 768;
 }
 
-window.addEventListener("scroll", () => {
+// Wait for page to fully load
+function initScrollEffects() {
+    // Set initial navbar state
+    updateNavbar();
+    updateLogo();
+    updateColors();
+    
+    // Add scroll event listener
+    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleResize);
+}
+
+// Handle scroll events
+function handleScroll() {
     const y = window.scrollY;
     const vh = window.innerHeight;
     const heroHeight = hero.offsetHeight;
+    const whiteTop = whiteSection.offsetTop;
 
-    // Check if we've scrolled past hero section
+    // Update navbar based on scroll position
+    updateNavbar(y, heroHeight);
+    
+    // Update logo position and colors
+    updateLogo(y, vh, whiteTop);
+    updateColors(y, vh, whiteTop);
+    
+    // Handle reveal animations
+    handleReveals();
+}
+
+// Update navbar appearance
+function updateNavbar(y = window.scrollY, heroHeight = hero.offsetHeight) {
+    if (!navbar) return;
+    
     if (y > heroHeight * 2.0) {
-        // Add background to navbar
         navbar.style.backgroundColor = "rgba(255, 255, 255, 0.95)";
         navbar.style.backdropFilter = "blur(10px)";
         navbar.style.boxShadow = "0 2px 20px rgba(0, 0, 0, 0.1)";
     } else {
-        // Remove background when in hero section
         navbar.style.backgroundColor = "transparent";
         navbar.style.backdropFilter = "none";
         navbar.style.boxShadow = "none";
     }
+}
 
-    // Mobile-specific behavior
+// Update logo position
+function updateLogo(y = window.scrollY, vh = window.innerHeight, whiteTop = whiteSection.offsetTop) {
+    if (!logo) return;
+    
     if (isMobile()) {
-        // On mobile, when scrolled past a threshold, move logo to left header
+        // Mobile-specific behavior
         if (y > 100) {
             // Logo goes to left header position
             logo.style.top = "25px";
             logo.style.left = "20px";
-            logo.style.transform = "translateX(0) translateY(0)"; // Remove centering
+            logo.style.transform = "translateX(0) translateY(0)";
             logo.style.width = "120px";
-            
-            // Change color when entering white section
-            const whiteTop = whiteSection.offsetTop;
-            if (y >= whiteTop - vh * 0.5) {
-                logo.style.color = "#d41e22";
-                document.body.style.color = "#d41e22";
-                // Also change navbar text color to red when in white section
-                document.querySelectorAll('.nav-links a').forEach(link => {
-                    link.style.color = "#d41e22";
-                });
-            } else {
-                logo.style.color = "white";
-                document.body.style.color = "white";
-                // Navbar text white when in red section
-                document.querySelectorAll('.nav-links a').forEach(link => {
-                    link.style.color = "white";
-                });
-            }
         } else {
             // When at top, logo is centered
             logo.style.top = "50%";
             logo.style.left = "50%";
             logo.style.transform = "translateX(-50%) translateY(-50%)";
             logo.style.width = `${Math.min(420, 0.85 * window.innerWidth)}px`;
-            logo.style.color = "white";
-            document.body.style.color = "white";
-            // Navbar text white when at top
-            document.querySelectorAll('.nav-links a').forEach(link => {
-                link.style.color = "white";
-            });
         }
     } else {
-        // Desktop/tablet behavior (original code)
+        // Desktop/tablet behavior
         const progress = Math.min(
             Math.max((y - startY) / (endY - startY), 0),
             1
         );
 
         const topValue = 50 - progress * 46;
-        const scaleValue = 1 - progress * 0.62;
         const widthValue = 420 - progress * 260;
 
         logo.style.top = `${topValue}%`;
         logo.style.left = "50%";
         logo.style.transform = "translateX(-50%) translateY(-50%)";
         logo.style.width = `${widthValue}px`;
-
-        const whiteTop = whiteSection.offsetTop;
-        if (y >= whiteTop - vh * 0.2) {
-            logo.style.color = "#d41e22";
-            document.body.style.color = "#d41e22";
-            // Navbar text red when in white section
-            document.querySelectorAll('.nav-links a').forEach(link => {
-                link.style.color = "#d41e22";
-            });
-        } else {
-            logo.style.color = "white";
-            document.body.style.color = "white";
-            // Navbar text white when in red section
-            document.querySelectorAll('.nav-links a').forEach(link => {
-                link.style.color = "white";
-            });
-        }
     }
+}
 
-    // Reveal animations
+// Update colors based on scroll position
+function updateColors(y = window.scrollY, vh = window.innerHeight, whiteTop = whiteSection.offsetTop) {
+    const navLinks = document.querySelectorAll('.nav-links a');
+    
+    if (y >= whiteTop - vh * 0.2) {
+        // In white section - red colors
+        if (logo) logo.style.color = "#d41e22";
+        document.body.style.color = "#d41e22";
+        navLinks.forEach(link => {
+            link.style.color = "#d41e22";
+        });
+    } else {
+        // In red section - white colors
+        if (logo) logo.style.color = "white";
+        document.body.style.color = "white";
+        navLinks.forEach(link => {
+            link.style.color = "white";
+        });
+    }
+}
+
+// Handle reveal animations
+function handleReveals() {
     reveals.forEach(el => {
         const rect = el.getBoundingClientRect();
         if (rect.top < window.innerHeight * 0.85) {
             el.classList.add("active");
         }
     });
-});
+}
 
 // Handle resize
-window.addEventListener("resize", () => {
-    if (!isMobile() && window.scrollY <= 100) {
+function handleResize() {
+    setViewportHeight(); // Update viewport height variable
+    
+    if (!isMobile() && window.scrollY <= 100 && logo) {
         // Reset logo position on desktop when at top
         logo.style.top = "50%";
         logo.style.left = "50%";
@@ -145,50 +148,18 @@ window.addEventListener("resize", () => {
         logo.style.width = "420px";
     }
     
-    // Reset navbar colors on resize
-    const y = window.scrollY;
-    const vh = window.innerHeight;
-    const heroHeight = hero.offsetHeight;
-    const whiteTop = whiteSection.offsetTop;
-    
-    if (y > heroHeight * 0.8) {
-        navbar.style.backgroundColor = "rgba(255, 255, 255, 0.95)";
-        navbar.style.backdropFilter = "blur(10px)";
-        navbar.style.boxShadow = "0 2px 20px rgba(0, 0, 0, 0.1)";
-    } else {
-        navbar.style.backgroundColor = "transparent";
-        navbar.style.backdropFilter = "none";
-        navbar.style.boxShadow = "none";
-    }
-    
-    // Update text colors
-    if (y >= whiteTop - vh * 0.2) {
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.style.color = "#d41e22";
-        });
-    } else {
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.style.color = "white";
-        });
-    }
-});
-
-// Initial setup
-if (isMobile() && window.scrollY > 100) {
-    logo.style.top = "25px";
-    logo.style.left = "20px";
-    logo.style.transform = "translateX(0) translateY(0)";
-    logo.style.width = "120px";
+    // Update all effects
+    handleScroll();
 }
 
-// Initial navbar check
-document.addEventListener('DOMContentLoaded', () => {
-    const y = window.scrollY;
-    const heroHeight = hero.offsetHeight;
+// Initialize when page is fully loaded
+window.addEventListener('load', function() {
+    // Small delay to ensure everything is ready
+    setTimeout(initScrollEffects, 100);
+});
 
-    if (y > heroHeight * 2.0) {
-        navbar.style.backgroundColor = "rgba(255, 255, 255, 0.95)";
-        navbar.style.backdropFilter = "blur(10px)";
-        navbar.style.boxShadow = "0 2px 20px rgba(0, 0, 0, 0.1)";
-    }
+// Fallback initialization
+document.addEventListener('DOMContentLoaded', function() {
+    // Set viewport height immediately
+    setViewportHeight();
 });
