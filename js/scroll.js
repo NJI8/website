@@ -1,3 +1,25 @@
+// Fix for Safari vh issues - set section heights directly
+function fixMobileHeights() {
+    const viewportHeight = window.innerHeight;
+    // Set height for all sections that should be full height
+    const sections = document.querySelectorAll('.section.red, .services-section');
+    sections.forEach(section => {
+        section.style.minHeight = `${viewportHeight}px`;
+        section.style.height = `${viewportHeight}px`;
+    });
+
+    // Also fix hero section
+    const hero = document.querySelector('.hero');
+    if (hero) {
+        hero.style.minHeight = `${viewportHeight}px`;
+        hero.style.height = `${viewportHeight}px`;
+    }
+}
+
+// Run on load and resize
+fixMobileHeights();
+window.addEventListener('resize', fixMobileHeights);
+
 const whiteSection = document.querySelector(".white");
 const logo = document.querySelector(".logo");
 const hero = document.querySelector(".hero");
