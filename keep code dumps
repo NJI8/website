@@ -1,0 +1,20 @@
+<header class="work-header">
+  <div class="work-header-inner">
+
+    <!-- left spacer for perfect centering -->
+    <div class="header-spacer"></div>
+
+    <!-- centered logo -->
+    <a href="index.html" class="header-logo">
+      <img src="assets/logo-red.svg" alt="Literals logo" />
+    </a>
+
+    <!-- right navigation -->
+    <nav class="header-nav">
+      <a href="work.html" class="active">Work</a>
+      <a href="ideas.html">Ideas</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+
+  </div>
+</header>
